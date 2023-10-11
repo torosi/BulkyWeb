@@ -1,0 +1,22 @@
+﻿@if (TempData["success"] != null)
+{
+    // jquery needs to be imported before toastr js files
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    
+    // create a toastr notification using temp data being set in controller methods. - the partial view is being called in layout so that it is on all of the pages
+    <script type="text/javascript">
+        toastr.success('@TempData["success"]');
+     </script>
+}
+
+@if (TempData["error"] != null)
+{
+    <script src="~/lib/jqueery/dist/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    
+    <script type="text/javascript">
+        toastr.success('@TempData["error"]');
+    </script>
+}
+

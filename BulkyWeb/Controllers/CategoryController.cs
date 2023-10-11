@@ -44,6 +44,8 @@ namespace BulkyWeb.Controllers
                 // save to database
                 _context.Categories.Add(obj);
                 _context.SaveChanges();
+                // temp data is a .net thing that will store what we pass into it, only for the next render. so when we redirect to index we will be able to access our success message/notification
+                TempData["success"] = "Category created successfully";
                 // redirect to the index action method in this controller to reload the list page
                 return RedirectToAction("Index");
             }
@@ -71,19 +73,54 @@ namespace BulkyWeb.Controllers
                 return NotFound();
             }
 
-            return View();
+            return View(categoryFromDb);
         }
 
+        [HttpPost]
         public IActionResult Edit(Category obj)
         {
             if (ModelState.IsValid) 
             {
-                _context.Categories.Add(obj);
+                _context.Categories.Update(obj);
                 _context.SaveChanges();
+                TempData["success"] = "Category created updated";
                 return RedirectToAction("Index");
             }
             return View();
         }
+
+        public IActionResult Delete(int id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            Category? categoryFromDb = _context.Categories.Find(id);
+
+            if (categoryFromDb == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryFromDb);
+        }
+
+        [HttpPost, ActionName("Delete")] // because the params are the same as the get method, it needs to have a different name but we can say that the action method is still going to be called delete
+        public IActionResult DeletePOST(int id)
+        {
+            Category? obj = _context.Categories.Find(id);
+            if (obj == null) 
+            {
+                return NotFound();
+            }
+
+            _context.Categories.Remove(obj);
+            _context.SaveChanges();
+            TempData["success"] = "Category deleted successfully";
+            return RedirectToAction("Index");
+        }
+
 
     }
 }

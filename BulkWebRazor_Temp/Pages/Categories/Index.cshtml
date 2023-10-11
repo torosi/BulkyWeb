@@ -1,4 +1,7 @@
-﻿@model List<Category>
+﻿@page
+@model BulkWebRazor_Temp.Pages.Categories.IndexModel
+@{
+}
 
 <div class="container">
     <div class="row pt-4 pb-3">
@@ -6,7 +9,7 @@
             <h2 class="text-primary">Category List</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-controller="Category" asp-action="Create" class="btn btn-primary">Create New Category</a>
+            <a asp-page="/categories/create" class="btn btn-primary">Create New Category</a>
         </div>
     </div>
 
@@ -19,15 +22,15 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var obj in Model.OrderBy(u => u.DisplayOrder))
+                @foreach (var obj in Model.CategoryList.OrderBy(u => u.DisplayOrder))
                 {
                     <tr>
                         <td>@obj.Name</td>
                         <td>@obj.DisplayOrder</td>
                         <td>
                             <div class="w-75 btn-group" role="group">
-                                <a asp-controller="Category" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">Edit</a>
-                                <a asp-controller="Category" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-primary mx-2">Delete</a>
+                                <a asp-page="/categories/edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">Edit</a>
+                                <a asp-page="/categories/delete" asp-route-id="@obj.Id" class="btn btn-primary mx-2">Delete</a>
                             </div>
                         </td>
                     </tr>
