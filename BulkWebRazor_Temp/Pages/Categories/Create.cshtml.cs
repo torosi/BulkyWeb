@@ -21,11 +21,13 @@ namespace BulkWebRazor_Temp.Pages.Categories
         {
         }
 
-        public IActionResult OnPost(Category obj)
+        public IActionResult OnPost()
         {
-            _context.Categories.Add(obj);
+            _context.Categories.Add(Category);
             _context.SaveChanges();
+            TempData["success"] = "Category created successfully";
             return RedirectToPage("Index");
+
         }
     }
 }
