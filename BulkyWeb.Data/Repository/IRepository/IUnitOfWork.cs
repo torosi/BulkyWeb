@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace BulkyWeb.Data.Repository.IRepository
 {
-    internal interface IUnitOfWork
+    public interface IUnitOfWork
     {
+        ICategoryRepository CategoryRepository { get; }
+
+        void Save();
     }
 }
