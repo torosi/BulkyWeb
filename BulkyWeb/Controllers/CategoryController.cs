@@ -1,4 +1,6 @@
 ﻿using BulkyWeb.Data.Data;
+using BulkyWeb.Data.Repository;
+using BulkyWeb.Data.Repository.IRepository;
 using BulkyWeb.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Common;
@@ -7,16 +9,16 @@ namespace BulkyWeb.Web.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoryController(ApplicationDbContext context)
+        public CategoryController(ICategoryRepository categoryRepository)
         {
-            _context = context;
+            _categoryRepository = categoryRepository;
         }
 
         public IActionResult Index()
         {
-            List<Category> catagories = _context.Categories.ToList();
+            List<Category> catagories = _categoryRepository.GetAll().ToList();
             return View(catagories);
         }
 
@@ -42,8 +44,8 @@ namespace BulkyWeb.Web.Controllers
             if (ModelState.IsValid) // check that the model passed into post method is valid. this checks the validation annotations on the model
             {
                 // save to database
-                _context.Categories.Add(obj);
-                _context.SaveChanges();
+                _categoryRepository.Add(obj);
+                _categoryRepository.Save();
                 // temp data is a .net thing that will store what we pass into it, only for the next render. so when we redirect to index we will be able to access our success message/notification
                 TempData["success"] = "Category created successfully";
                 // redirect to the index action method in this controller to reload the list page
@@ -63,9 +65,11 @@ namespace BulkyWeb.Web.Controllers
             }
 
             // get the category from the db
-            Category? categoryFromDb = _context.Categories.Find(id); // find works with the primary key
+            //Category? categoryFromDb = _context.Categories.Find(id); // find works with the primary key
             //Category? categoryFromDb2 = _context.Categories.FirstOrDefault(u => u.Id == id); // can use on any value not just the primary key
             //Category? categoryFromDb3 = _context.Categories.Where(u => u.Id == id).FirstOrDefault();
+            Category? categoryFromDb = _categoryRepository.GetFirstOrDefault(u => u.Id == id);
+           
 
             // if there was no category found, return NotFound()
             if (categoryFromDb == null)
@@ -81,8 +85,9 @@ namespace BulkyWeb.Web.Controllers
         {
             if (ModelState.IsValid) 
             {
-                _context.Categories.Update(obj);
-                _context.SaveChanges();
+                _categoryRepository.Update(obj);
+                _categoryRepository.Save();
+
                 TempData["success"] = "Category created updated";
                 return RedirectToAction("Index");
             }
@@ -96,7 +101,7 @@ namespace BulkyWeb.Web.Controllers
                 return NotFound();
             }
 
-            Category? categoryFromDb = _context.Categories.Find(id);
+            Category? categoryFromDb = _categoryRepository.GetFirstOrDefault(u => u.Id == id);
 
             if (categoryFromDb == null)
             {
@@ -109,14 +114,15 @@ namespace BulkyWeb.Web.Controllers
         [HttpPost, ActionName("Delete")] // because the params are the same as the get method, it needs to have a different name but we can say that the action method is still going to be called delete
         public IActionResult DeletePOST(int id)
         {
-            Category? obj = _context.Categories.Find(id);
+            Category? obj = _categoryRepository.GetFirstOrDefault(u => u.Id == id);
             if (obj == null) 
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(obj);
-            _context.SaveChanges();
+            _categoryRepository.Remove(obj);
+            _categoryRepository.Save();
+
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
