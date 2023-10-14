@@ -1,4 +1,5 @@
-﻿using BulkyWeb.Data.Repository.IRepository;
+﻿using BulkyWeb.Data.Data;
+using BulkyWeb.Data.Repository.IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,18 @@ namespace BulkyWeb.Data.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
-        public ICategoryRepository CategoryRepository => throw new NotImplementedException();
+        public ICategoryRepository CategoryRepository { get; private set; }
+        private ApplicationDbContext _context;
+
+        public UnitOfWork(ApplicationDbContext context)
+        {
+            _context = context;
+            CategoryRepository = new CategoryRepository(_context);
+        }
 
         public void Save()
         {
-            throw new NotImplementedException();
+            _context.SaveChanges();
         }
     }
 }

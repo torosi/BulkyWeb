@@ -25,4 +25,10 @@
     <ProjectReference Include="..\BulkyWeb.Data\BulkyWeb.Data.csproj" />
     <ProjectReference Include="..\BulkyWeb.Utility\BulkyWeb.Utility.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Areas\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Areas\" />
+  </ItemGroup>
 </Project>

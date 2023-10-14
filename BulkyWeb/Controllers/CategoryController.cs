@@ -9,16 +9,17 @@ namespace BulkyWeb.Web.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ICategoryRepository _categoryRepository;
+        //private readonly ICategoryRepository _unitOfWork.CategoryRepository;
+        private readonly IUnitOfWork _unitOfWork; // unit of work has its own category repository so we no longer need to inject it
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            List<Category> catagories = _categoryRepository.GetAll().ToList();
+            List<Category> catagories = _unitOfWork.CategoryRepository.GetAll().ToList();
             return View(catagories);
         }
 
@@ -44,8 +45,8 @@ namespace BulkyWeb.Web.Controllers
             if (ModelState.IsValid) // check that the model passed into post method is valid. this checks the validation annotations on the model
             {
                 // save to database
-                _categoryRepository.Add(obj);
-                _categoryRepository.Save();
+                _unitOfWork.CategoryRepository.Add(obj);
+                _unitOfWork.Save();
                 // temp data is a .net thing that will store what we pass into it, only for the next render. so when we redirect to index we will be able to access our success message/notification
                 TempData["success"] = "Category created successfully";
                 // redirect to the index action method in this controller to reload the list page
@@ -68,7 +69,7 @@ namespace BulkyWeb.Web.Controllers
             //Category? categoryFromDb = _context.Categories.Find(id); // find works with the primary key
             //Category? categoryFromDb2 = _context.Categories.FirstOrDefault(u => u.Id == id); // can use on any value not just the primary key
             //Category? categoryFromDb3 = _context.Categories.Where(u => u.Id == id).FirstOrDefault();
-            Category? categoryFromDb = _categoryRepository.GetFirstOrDefault(u => u.Id == id);
+            Category? categoryFromDb = _unitOfWork.CategoryRepository.GetFirstOrDefault(u => u.Id == id);
            
 
             // if there was no category found, return NotFound()
@@ -85,8 +86,8 @@ namespace BulkyWeb.Web.Controllers
         {
             if (ModelState.IsValid) 
             {
-                _categoryRepository.Update(obj);
-                _categoryRepository.Save();
+                _unitOfWork.CategoryRepository.Update(obj);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Category created updated";
                 return RedirectToAction("Index");
@@ -101,7 +102,7 @@ namespace BulkyWeb.Web.Controllers
                 return NotFound();
             }
 
-            Category? categoryFromDb = _categoryRepository.GetFirstOrDefault(u => u.Id == id);
+            Category? categoryFromDb = _unitOfWork.CategoryRepository.GetFirstOrDefault(u => u.Id == id);
 
             if (categoryFromDb == null)
             {
@@ -114,14 +115,14 @@ namespace BulkyWeb.Web.Controllers
         [HttpPost, ActionName("Delete")] // because the params are the same as the get method, it needs to have a different name but we can say that the action method is still going to be called delete
         public IActionResult DeletePOST(int id)
         {
-            Category? obj = _categoryRepository.GetFirstOrDefault(u => u.Id == id);
+            Category? obj = _unitOfWork.CategoryRepository.GetFirstOrDefault(u => u.Id == id);
             if (obj == null) 
             {
                 return NotFound();
             }
 
-            _categoryRepository.Remove(obj);
-            _categoryRepository.Save();
+            _unitOfWork.CategoryRepository.Remove(obj);
+            _unitOfWork.Save();
 
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
