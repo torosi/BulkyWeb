@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BulkyWeb.Migrations
+namespace BulkyWeb.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20231006150558_AddCategoryTableToDb")]

@@ -26,9 +26,9 @@
     <ProjectReference Include="..\BulkyWeb.Utility\BulkyWeb.Utility.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Areas\" />
+    <None Remove="Views\Product\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\" />
+    <Folder Include="Views\Product\" />
   </ItemGroup>
 </Project>
