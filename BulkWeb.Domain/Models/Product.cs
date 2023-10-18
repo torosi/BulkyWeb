@@ -46,8 +46,8 @@ namespace BulkyWeb.Domain.Models
         // we do not want to validate this property as it will invalidate the model state and not post correctly on create
         [ValidateNever]
 		public Category Category { get; set; } // navigation property to the category table
-
-        public string ImageUrl { get; set; }
+        [ValidateNever]
+        public string? ImageUrl { get; set; }
 
 	}
 }

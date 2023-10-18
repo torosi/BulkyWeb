@@ -22,16 +22,18 @@ namespace BulkyWeb.Web.Controllers
 
         // 1) inject unit of work
         private readonly IUnitOfWork _unitOfWork;
-        public ProductController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // 2) index action method
         // GET: /<controller>/
         public IActionResult Index()
         {
-            List<Product> products = _unitOfWork.ProductRepository.GetAll().ToList();
+            List<Product> products = _unitOfWork.ProductRepository.GetAll(includeProperties:"Category").ToList();
             // rather than passing a whole category to view we can pick out the parts we want and create a new object that can be passed
  
             return View(products);
@@ -39,7 +41,7 @@ namespace BulkyWeb.Web.Controllers
 
         // 3.1) create action method
         // GET
-        public IActionResult Create()
+        public IActionResult Upsert(int? id)
         {
 
             IEnumerable<SelectListItem> CategoryList = _unitOfWork.CategoryRepository
@@ -54,12 +56,30 @@ namespace BulkyWeb.Web.Controllers
                 CategoryList = CategoryList
             };
 
-            return View(productVM);
+            if (id == null || id == 0)
+            {
+                return View(productVM);
+            }
+            else
+            { 
+                Product product = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == id);
+                productVM.Title = product.Title;
+                productVM.Description = product.Description;
+                productVM.Price = product.Price;
+                productVM.ListPrice = product.ListPrice;
+                productVM.Price50 = product.Price50;
+                productVM.Price100 = product.Price100;
+                productVM.Author = product.Author;
+                productVM.ISBN = product.ISBN;
+                productVM.ImageUrl = product.ImageUrl;
+                productVM.CategoryId = product.CategoryId;
+                return View(productVM);
+            }
         }
 
         // POST
         [HttpPost]
-        public IActionResult Create(ProductVM obj)
+        public IActionResult Upsert(ProductVM obj, IFormFile? file)
         {
             // when the form posts it will hit this method
             // 1) check model state
@@ -68,6 +88,30 @@ namespace BulkyWeb.Web.Controllers
 
             if (ModelState.IsValid)
             {
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine(wwwRootPath, @"images\product");
+
+                    // if an image in passed in, find and delete it
+                    if (!string.IsNullOrEmpty(obj.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, obj.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    obj.ImageUrl = @"\images\product"+fileName;
+                }
+
                 // map our values from the view model to a product, to be saved to db
                 Product newProduct = new Product()
                 {
@@ -83,62 +127,26 @@ namespace BulkyWeb.Web.Controllers
                     ImageUrl = obj.ImageUrl
                 };
 
+                if (obj.Id == 0)
+                {
+                    _unitOfWork.ProductRepository.Add(newProduct);
+                } else
+                {
+                    _unitOfWork.ProductRepository.Update(newProduct);
+                }
 
-                _unitOfWork.ProductRepository.Add(newProduct);
                 _unitOfWork.Save();
                 TempData["success"] = "Product created successfully";
                 return RedirectToAction("Index");
             } else
             {
-                // if we return to the view because the model state is not valid, we get an exception
-                // the category list is empty, we need to pass a view model back to the view
-                // we could create a new one but it is better to update the one we have. this way we dont lose our product values on the page
-                obj.CategoryList = _unitOfWork.CategoryRepository
-                    .GetAll().Select(u => new SelectListItem
-                         {
-                             Text = u.Name,
-                             Value = u.Id.ToString()
-                         });
-
-                return View(obj); // passing in a ProductVM
+                obj.CategoryList = _unitOfWork.CategoryRepository.GetAll().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                });
+                return View(obj);
             }
-        }
-
-        // 3.2) Edit action method
-        // GET
-        public IActionResult Edit(int id)
-        {
-            // 1) check the id being passed in from index
-            // 2) get the product from the db
-            // 3) pass it into view
-
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-
-            Product? productFromDb = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == id);
-
-            if (productFromDb == null)
-            {
-                return NotFound();
-            }
-
-            return View(productFromDb);
-        }
-
-        // POST
-        [HttpPost]
-        public IActionResult Edit(Product obj)
-        {
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.ProductRepository.Update(obj);
-                _unitOfWork.Save();
-                TempData["success"] = "Product updated successfully";
-                return RedirectToAction("Index");
-            }
-            return View();
         }
 
         // 3.3) Delete action method
