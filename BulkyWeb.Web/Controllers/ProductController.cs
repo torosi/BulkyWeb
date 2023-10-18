@@ -182,12 +182,33 @@ namespace BulkyWeb.Web.Controllers
                 return NotFound();
             }
 
+            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageUrl.TrimStart('\\'));
+            if (System.IO.File.Exists(oldImagePath))
+            {
+                System.IO.File.Delete(oldImagePath);
+            }
+
             _unitOfWork.ProductRepository.Remove(product);
             _unitOfWork.Save();
 
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
+
+
+        #region API CALLS
+
+        [HttpGet]
+        public IActionResult GetAll(int id)
+        {
+            List<Product> productList = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category").ToList();
+            return Json(new
+            {
+                data = productList
+            });
+        }
+
+        #endregion
 
     }
 }
