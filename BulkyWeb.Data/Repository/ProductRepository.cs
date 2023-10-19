@@ -35,7 +35,9 @@ namespace BulkyWeb.Data.Repository
                 {
                     objFromDb.ImageUrl = obj.ImageUrl;
                 }
+                _dbSet.Update(objFromDb);
             }
+
         }
     }
 }

@@ -124,7 +124,8 @@ namespace BulkyWeb.Web.Controllers
                     Price50 = obj.Price50,
                     Price100 = obj.Price100,
                     CategoryId = obj.CategoryId,
-                    ImageUrl = obj.ImageUrl
+                    ImageUrl = obj.ImageUrl,
+                    Id = obj.Id
                 };
 
                 if (obj.Id == 0)
@@ -149,29 +150,38 @@ namespace BulkyWeb.Web.Controllers
             }
         }
 
-        // 3.3) Delete action method
-        // GET
-        public IActionResult Delete(int id)
+        #region API CALLS
+
+        [HttpGet]
+        public IActionResult GetAll()
         {
-            // 1) validate the id passed in from index
-            // 2) get the product from the db
-            // 3) pass into view
-
-            if (id == null || id == 0)
+            List<Product> products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category").ToList();
+            return Json(new
             {
-                return NotFound();
-            }
-
-            Product? productFromDb = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == id);
-
-            if (productFromDb == null)
-            {
-                return NotFound();
-            }
-
-            return View(productFromDb);
+                data = products
+            });
         }
 
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            Product productToBeDeleted = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == id);
+            if (productToBeDeleted == null)
+            {
+                return Json(new { success = false, message = "Error when deleting" });
+            }
+
+            if (productToBeDeleted.ImageUrl != null)
+            {
+                var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, productToBeDeleted.ImageUrl.TrimStart('\\'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
+
+<<<<<<< HEAD
         // POST
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int id)
@@ -189,11 +199,14 @@ namespace BulkyWeb.Web.Controllers
             }
 
             _unitOfWork.ProductRepository.Remove(product);
+=======
+            _unitOfWork.ProductRepository.Remove(productToBeDeleted);
+>>>>>>> 92d74db (adding delete api and requests to product page through js file)
             _unitOfWork.Save();
 
-            TempData["success"] = "Category deleted successfully";
-            return RedirectToAction("Index");
+            return Json(new { success = true, message = "Successfully deleted product" });
         }
+        #endregion
 
 
         #region API CALLS
