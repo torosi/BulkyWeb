@@ -1,13 +1,16 @@
-﻿using BulkyWeb.Data.Data;
+using BulkyWeb.Data.Data;
 using BulkyWeb.Data.Repository;
 using BulkyWeb.Data.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Implementing unit of work pattern. we no longer need categoryrepository because unit of work has its own categoryrepository
 // in the categorycontroller we now want to implement unit of work instead of categorycontroller

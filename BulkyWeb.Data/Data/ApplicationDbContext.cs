@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BulkyWeb.Domain.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace BulkyWeb.Data.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -109,8 +110,6 @@ namespace BulkyWeb.Data.Data
                 });
 
             base.OnModelCreating(modelBuilder);
-
-
         }
     }
 }
