@@ -38,6 +38,9 @@ namespace BulkyWeb.Domain.ViewModels
         public int CategoryId { get; set; }
 
         [ValidateNever]
+        public Category Category { get; set; } // navigation property to the category table
+
+        [ValidateNever]
         public string ImageUrl { get; set; }
 
     }

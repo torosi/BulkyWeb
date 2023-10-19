@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BulkyWeb.Domain.Models;
 using BulkyWeb.Data.Repository.IRepository;
+using BulkyWeb.Domain.ViewModels;
 
 namespace BulkyWeb.Web.Controllers;
 
@@ -19,7 +20,29 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         IEnumerable<Product> products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category");
+        // the product should be passed into view, it should be a list of view models
         return View(products);
+    }    
+    
+    public IActionResult Details(int id)
+    {
+        Product product = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == id, includeProperties: "Category");
+        ProductVM productVM = new ProductVM()
+        {
+            Title = product.Title,
+            ISBN = product.ISBN,
+            Author = product.Author,
+            Description = product.Description,
+            ListPrice = product.ListPrice,
+            Price = product.Price,
+            Price50 = product.Price50,
+            Price100 = product.Price100,
+            CategoryId = product.CategoryId,
+            ImageUrl = product.ImageUrl,
+            Id = product.Id
+        };
+
+        return View(productVM);
     }
 
     public IActionResult Privacy()

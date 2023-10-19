@@ -1,12 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace BulkyWeb.Domain.Models
 {
-	public class Product
+    public class Product
 	{
 		[Key]
 		public int Id { get; set; }
