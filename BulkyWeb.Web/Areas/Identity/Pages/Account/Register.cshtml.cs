@@ -10,6 +10,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using BulkyWeb.Domain.Models;
+using BulkyWeb.Utility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,6 +26,7 @@ namespace BulkyWeb.Web.Areas.Identity.Pages.Account
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
@@ -35,7 +38,8 @@ namespace BulkyWeb.Web.Areas.Identity.Pages.Account
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +47,7 @@ namespace BulkyWeb.Web.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -102,6 +107,15 @@ namespace BulkyWeb.Web.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            if (!(await _roleManager.RoleExistsAsync(StaticDetails.Customer_Role)))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Customer_Role));
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Employee_Role));
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Admin_Role));
+                await _roleManager.CreateAsync(new IdentityRole(StaticDetails.Company_Role));
+            }
+
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -154,11 +168,11 @@ namespace BulkyWeb.Web.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<ApplicationUser>();
             }
             catch
             {
