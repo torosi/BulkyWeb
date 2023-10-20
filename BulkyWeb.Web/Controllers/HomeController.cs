@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using BulkyWeb.Domain.Models;
 using BulkyWeb.Data.Repository.IRepository;
 using BulkyWeb.Domain.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BulkyWeb.Web.Controllers;
 
@@ -26,23 +28,32 @@ public class HomeController : Controller
     
     public IActionResult Details(int id)
     {
-        Product product = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == id, includeProperties: "Category");
-        ProductVM productVM = new ProductVM()
+        ShoppingCart cart = new ShoppingCart()
         {
-            Title = product.Title,
-            ISBN = product.ISBN,
-            Author = product.Author,
-            Description = product.Description,
-            ListPrice = product.ListPrice,
-            Price = product.Price,
-            Price50 = product.Price50,
-            Price100 = product.Price100,
-            CategoryId = product.CategoryId,
-            ImageUrl = product.ImageUrl,
-            Id = product.Id
+            Product = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == id, includeProperties: "Category"),
+            Count = 1,
+            ProductId = id
         };
 
-        return View(productVM);
+        return View(cart);
+    }
+
+    [HttpPost]
+    [Authorize] // we need this to get the user id of the logged in user
+    public IActionResult Details(ShoppingCart cart)
+    {
+        // get the current user
+        var claimsIdentity = (ClaimsIdentity)User.Identity; // convert to claims identity
+        var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+        cart.ApplicationUserId = userId;
+        cart.Product = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == cart.ProductId, includeProperties: "Category");
+
+        _unitOfWork.ShoppingCartRepository.Add(cart);
+        _unitOfWork.Save();
+
+        TempData["success"] = "Cart updated successfully";
+
+        return RedirectToAction(nameof(Index));
     }
 
     public IActionResult Privacy()
