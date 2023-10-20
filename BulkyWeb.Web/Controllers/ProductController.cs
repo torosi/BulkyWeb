@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using BulkyWeb.Data.Repository.IRepository;
 using BulkyWeb.Domain.Models;
 using BulkyWeb.Domain.ViewModels;
+using BulkyWeb.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -12,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BulkyWeb.Web.Controllers
 {
+    [Authorize(Roles = StaticDetails.Admin_Role)]
     public class ProductController : Controller
     {
 

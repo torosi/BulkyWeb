@@ -2,11 +2,14 @@
 using BulkyWeb.Data.Repository;
 using BulkyWeb.Data.Repository.IRepository;
 using BulkyWeb.Domain.Models;
+using BulkyWeb.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Common;
 
 namespace BulkyWeb.Web.Controllers
 {
+    [Authorize(Roles = StaticDetails.Admin_Role)]
     public class CategoryController : Controller
     {
         //private readonly ICategoryRepository _unitOfWork.CategoryRepository;

@@ -10,9 +10,6 @@
     <None Remove="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
     <PackageReference Include="Mvc.ModelBinding.MultiParameter" Version="1.1.4" />
   </ItemGroup>

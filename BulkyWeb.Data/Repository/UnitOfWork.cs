@@ -12,6 +12,7 @@ namespace BulkyWeb.Data.Repository
     {
         public ICategoryRepository CategoryRepository { get; private set; }
         public IProductRepository ProductRepository { get; private set; }
+        public ICompanyRepository CompanyRepository { get; private set; }
 
         private ApplicationDbContext _context;
 
@@ -20,6 +21,7 @@ namespace BulkyWeb.Data.Repository
             _context = context;
             CategoryRepository = new CategoryRepository(_context);
             ProductRepository = new ProductRepository(_context);
+            CompanyRepository = new CompanyRepository(_context);
         }
 
         public void Save()
