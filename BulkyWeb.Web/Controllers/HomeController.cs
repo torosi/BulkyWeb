@@ -46,9 +46,19 @@ public class HomeController : Controller
         var claimsIdentity = (ClaimsIdentity)User.Identity; // convert to claims identity
         var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
         cart.ApplicationUserId = userId;
-        cart.Product = _unitOfWork.ProductRepository.GetFirstOrDefault(u => u.Id == cart.ProductId, includeProperties: "Category");
 
-        _unitOfWork.ShoppingCartRepository.Add(cart);
+        // if the item is already in your cart, then you only want to update the quantity rather than create another entry
+        ShoppingCart cartFromDb = _unitOfWork.ShoppingCartRepository.GetFirstOrDefault(u => u.Id == cart.ProductId);
+        if (cartFromDb != null)
+        {
+            // shopping cart already exists
+            cartFromDb.Count += cart.Count;
+            _unitOfWork.ShoppingCartRepository.Update(cartFromDb);
+        } else
+        {
+            _unitOfWork.ShoppingCartRepository.Add(cart);
+        }
+
         _unitOfWork.Save();
 
         TempData["success"] = "Cart updated successfully";
