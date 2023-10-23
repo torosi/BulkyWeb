@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace BulkyWeb.Data.Repository
 {
-    public class CategoryRepository : Repository<Category>, ICategoryRepository 
-    {
+    public class OrderHeaderRepository : Repository<OrderHeader>, IOrderHeaderRepository
+    { 
         private ApplicationDbContext _context;
-        public CategoryRepository(ApplicationDbContext context) : base(context)
-        {
+        public OrderHeaderRepository(ApplicationDbContext context) : base(context)
+        { 
             _context = context;
         }
 
-        public void Update(Category obj)
+        public void Update(OrderHeader obj)
         {
             _dbSet.Update(obj);
         }
